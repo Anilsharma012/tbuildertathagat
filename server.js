@@ -166,6 +166,13 @@ const testSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+const emailOtpSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  otp: { type: String, required: true },
+  expiresAt: { type: Date, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 // Create models
 const User = mongoose.model('User', userSchema);
 const Course = mongoose.model('Course', courseSchema);
