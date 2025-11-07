@@ -266,7 +266,7 @@ const AddQuestion = () => {
       options: [options.A, options.B, options.C, options.D],
       correctAnswer: correctOption,
       explanation: explanation,
-      difficulty: difficulty
+      difficulty: difficulty.toLowerCase()
     };
 
     console.log("📝 Question data to send:", questionData);
