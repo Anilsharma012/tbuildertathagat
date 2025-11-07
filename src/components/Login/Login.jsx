@@ -282,9 +282,9 @@ const Login = ({ onClose, setUser }) => {
                 <button className="tllogin-btn" onClick={() => setStep("phone")}>
                   Login with phone number
                 </button>
-                {/* <button className="tllogin-btn" onClick={() => setStep("email")}>
+                <button className="tllogin-btn" onClick={() => setStep("email")}>
                   Login with email
-                </button> */}
+                </button> 
 
                 {/* Demo Login Button */}
                 {/* ...kept commented as in your file... */}
