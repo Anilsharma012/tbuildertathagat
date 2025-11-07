@@ -104,45 +104,19 @@ const AddQuestion = () => {
     if (!course) return;
     axios.get(`/api/subjects/${course}`, {
       headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setSubjects(res.data.subjects || []));
-  }, [course]);
+    }).then(res => setSubjects(res.data.subjects || [])).catch(err => console.error("Fetch subjects error:", err));
+  }, [course, token]);
 
-  // Fetch chapters
+  // Fetch questions for selected subject
   useEffect(() => {
     if (!subject) return;
-    axios.get(`/api/chapters/${subject}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setChapters(res.data.chapters || []));
-  }, [subject]);
-
-  // Fetch topics
-  useEffect(() => {
-    if (!chapter) return;
-    axios.get(`/api/topics/${chapter}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setTopics(res.data.topics || []));
-  }, [chapter]);
-
-  // Fetch tests
-  useEffect(() => {
-    if (!topic) return;
-    axios.get(`/api/tests/${topic}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setTests(res.data.tests || []));
-  }, [topic]);
-
-  // Fetch questions for selected test
-  useEffect(() => {
-    if (!test) return;
-    const token = localStorage.getItem("adminToken");
-
     axios
-      .get(`/api/questions?testId=${test}`, {
+      .get(`/api/questions/${subject}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setQuestions(res.data.questions || []))
       .catch((err) => console.error("❌ Fetch question error:", err));
-  }, [test]);
+  }, [subject, token]);
 
   const handleOptionChange = (optionKey, value) => {
     console.log(`📝 Option ${optionKey} changed:`, value);
