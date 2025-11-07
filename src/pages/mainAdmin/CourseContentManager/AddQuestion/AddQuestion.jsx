@@ -228,11 +228,6 @@ const AddQuestion = () => {
   };
 
   const resetForm = () => {
-    setCourse("");
-    setSubject("");
-    setChapter("");
-    setTopic("");
-    setTest("");
     setQuestionText("");
     setOptions({ A: "", B: "", C: "", D: "" });
     setCorrectOption("");
