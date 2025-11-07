@@ -306,6 +306,8 @@ app.post('/api/auth/email/verify', async (req, res) => {
   try {
     const { email, otpCode } = req.body;
 
+    console.log('🔍 Verify attempt - Email:', email, 'OTP:', otpCode, 'OTP length:', otpCode?.length);
+
     if (!email || !otpCode) {
       return res.status(400).json({ success: false, message: 'Email and OTP are required' });
     }
@@ -313,19 +315,24 @@ app.post('/api/auth/email/verify', async (req, res) => {
     // Find the OTP record
     const otpRecord = await EmailOtp.findOne({ email });
 
+    console.log('📋 OTP Record found:', !!otpRecord, 'Stored OTP:', otpRecord?.otp);
+
     if (!otpRecord) {
-      return res.status(400).json({ success: false, message: 'OTP not found or expired' });
+      return res.status(400).json({ success: false, message: 'OTP not found. Please request a new OTP.' });
     }
 
     // Check if OTP has expired
     if (new Date() > otpRecord.expiresAt) {
       await EmailOtp.deleteOne({ email });
-      return res.status(400).json({ success: false, message: 'OTP has expired' });
+      console.log('⏰ OTP expired');
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
     }
 
     // Verify OTP
+    console.log('🔐 Comparing OTPs - Stored:', otpRecord.otp, 'Received:', otpCode);
     if (otpRecord.otp !== otpCode) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+      console.log('❌ OTP mismatch');
+      return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
     }
 
     // OTP is valid - delete it
@@ -346,6 +353,8 @@ app.post('/api/auth/email/verify', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '7d' });
 
+    console.log('✅ Email OTP verified successfully for:', email);
+
     res.json({
       success: true,
       message: 'OTP verified successfully',
@@ -359,7 +368,7 @@ app.post('/api/auth/email/verify', async (req, res) => {
       redirectTo: '/user-details'
     });
   } catch (error) {
-    console.error('Error verifying email OTP:', error.message);
+    console.error('Error verifying email OTP:', error.message, error.stack);
     res.status(500).json({ success: false, message: error.message });
   }
 });
