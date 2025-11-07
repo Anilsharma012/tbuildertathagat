@@ -132,6 +132,15 @@ const questionSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+const chapterSchema = new mongoose.Schema({
+  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  name: { type: String, required: true },
+  description: String,
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Create models
 const User = mongoose.model('User', userSchema);
 const Course = mongoose.model('Course', courseSchema);
