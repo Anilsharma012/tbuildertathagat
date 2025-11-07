@@ -257,22 +257,16 @@ const AddQuestion = () => {
     console.log("✅ Validation passed, submitting...");
     setIsSubmitting(true);
 
-    // Prepare exact POST body as specified
+    // Prepare question data
     const questionData = {
-      testId: test,
-      questionText: questionText, // Keep HTML for rich content
-      options: {
-        A: options.A, // Keep HTML for rich content
-        B: options.B,
-        C: options.C,
-        D: options.D
-      },
-      correctOption,
-      explanation: explanation, // Keep HTML for rich content
-      difficulty,
-      marks: Number(marks),
-      negativeMarks: Number(negativeMarks),
-      isActive
+      subjectId: subject,
+      courseId: course,
+      question: questionText,
+      questionType: 'mcq',
+      options: [options.A, options.B, options.C, options.D],
+      correctAnswer: correctOption,
+      explanation: explanation,
+      difficulty: difficulty
     };
 
     console.log("📝 Question data to send:", questionData);
@@ -281,7 +275,7 @@ const AddQuestion = () => {
       const token = localStorage.getItem("adminToken");
       console.log("🔑 Token exists:", !!token);
 
-      // Make exactly one POST request
+      // Make POST request
       console.log("📡 Making POST request to /api/questions");
       const response = await axios.post(`/api/questions`, questionData, {
         headers: { Authorization: `Bearer ${token}` },
@@ -289,13 +283,13 @@ const AddQuestion = () => {
 
       console.log("✅ Response received:", response.status, response.data);
 
-      // Success (201 or ok:true) → green toast "Saved"
-      if (response.status === 201 || response.data?.success === true) {
+      // Success
+      if (response.status === 200 || response.data?.success === true) {
         console.log("🎉 Success! Showing toast and refetching...");
-        toast.success("Saved");
+        toast.success("Question added successfully!");
 
-        // Then one refetch: GET /api/questions?testId=<TEST_ID>
-        const refetchRes = await axios.get(`/api/questions?testId=${test}`, {
+        // Refetch questions for the subject
+        const refetchRes = await axios.get(`/api/questions/${subject}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setQuestions(refetchRes.data.questions || []);
