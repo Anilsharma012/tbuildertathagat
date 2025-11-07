@@ -762,6 +762,63 @@ app.delete('/api/chapters/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ============ Topic Management Routes ============
+
+// Get topics for a chapter
+app.get('/api/topics/:chapterId', adminAuth, async (req, res) => {
+  try {
+    const { chapterId } = req.params;
+    const topics = await Topic.find({ chapterId });
+    res.json({ success: true, topics });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new topic
+app.post('/api/topics', adminAuth, async (req, res) => {
+  try {
+    const { chapter, subject, course, name, description, isFullTestSection } = req.body;
+    const topic = new Topic({
+      chapterId: chapter,
+      subjectId: subject,
+      courseId: course,
+      name,
+      description,
+      isFullTestSection
+    });
+    await topic.save();
+    res.json({ success: true, topic });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update topic
+app.put('/api/topics/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, description, isFullTestSection } = req.body;
+    const topic = await Topic.findByIdAndUpdate(
+      req.params.id,
+      { name, description, isFullTestSection, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, topic });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete topic
+app.delete('/api/topics/:id', adminAuth, async (req, res) => {
+  try {
+    await Topic.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Topic deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ Mock Tests Routes ============
 
 app.get('/api/admin/mock-tests', adminAuth, async (req, res) => {
