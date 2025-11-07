@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useZoom } from '../../../contexts/ZoomContext';
+import { useAuth } from '../../../context/AuthContext';
+import { useZoom } from '../../../context/ZoomContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './ZoomManagement.css';
