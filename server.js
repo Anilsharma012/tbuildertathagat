@@ -562,6 +562,129 @@ app.delete('/api/admin/courses/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ============ Subject Management Routes ============
+
+// Get all courses (for dropdown in course content manager)
+app.get('/api/courses', adminAuth, async (req, res) => {
+  try {
+    const courses = await Course.find({}).select('_id name');
+    res.json({ success: true, courses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Get subjects for a course
+app.get('/api/subjects/:courseId', adminAuth, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const subjects = await Subject.find({ courseId });
+    res.json({ success: true, subjects });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new subject
+app.post('/api/subjects', adminAuth, async (req, res) => {
+  try {
+    const { courseId, name, description } = req.body;
+    const subject = new Subject({
+      courseId,
+      name,
+      description
+    });
+    await subject.save();
+    res.json({ success: true, subject });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update subject
+app.put('/api/subjects/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const subject = await Subject.findByIdAndUpdate(
+      req.params.id,
+      { name, description, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, subject });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete subject
+app.delete('/api/subjects/:id', adminAuth, async (req, res) => {
+  try {
+    await Subject.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Subject deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============ Question Management Routes ============
+
+// Get questions for a subject
+app.get('/api/questions/:subjectId', async (req, res) => {
+  try {
+    const { subjectId } = req.params;
+    const questions = await Question.find({ subjectId });
+    res.json({ success: true, questions });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new question
+app.post('/api/questions', adminAuth, async (req, res) => {
+  try {
+    const { subjectId, courseId, question, questionType, options, correctAnswer, explanation, difficulty } = req.body;
+    const newQuestion = new Question({
+      subjectId,
+      courseId,
+      question,
+      questionType,
+      options,
+      correctAnswer,
+      explanation,
+      difficulty
+    });
+    await newQuestion.save();
+    res.json({ success: true, question: newQuestion });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update question
+app.put('/api/questions/:id', adminAuth, async (req, res) => {
+  try {
+    const { question, questionType, options, correctAnswer, explanation, difficulty } = req.body;
+    const updatedQuestion = await Question.findByIdAndUpdate(
+      req.params.id,
+      { question, questionType, options, correctAnswer, explanation, difficulty, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, question: updatedQuestion });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete question
+app.delete('/api/questions/:id', adminAuth, async (req, res) => {
+  try {
+    await Question.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Question deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ Mock Tests Routes ============
 
 app.get('/api/admin/mock-tests', adminAuth, async (req, res) => {
