@@ -265,6 +265,105 @@ app.post('/api/auth/phone/send-otp', async (req, res) => {
   }
 });
 
+// Email OTP - Send email
+app.post('/api/auth/email/send-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    // Generate a random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Set OTP expiration to 10 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Save OTP to database (upsert)
+    await EmailOtp.findOneAndUpdate(
+      { email },
+      { email, otp, expiresAt },
+      { upsert: true }
+    );
+
+    // In production, send via email service (SendGrid, Nodemailer, etc.)
+    console.log(`✉️ Email OTP sent to ${email}: ${otp}`);
+
+    res.json({
+      success: true,
+      message: 'OTP sent to email successfully',
+      otp: otp // Remove in production! Only for demo
+    });
+  } catch (error) {
+    console.error('Error sending email OTP:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Email OTP - Verify email
+app.post('/api/auth/email/verify', async (req, res) => {
+  try {
+    const { email, otpCode } = req.body;
+
+    if (!email || !otpCode) {
+      return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+    }
+
+    // Find the OTP record
+    const otpRecord = await EmailOtp.findOne({ email });
+
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: 'OTP not found or expired' });
+    }
+
+    // Check if OTP has expired
+    if (new Date() > otpRecord.expiresAt) {
+      await EmailOtp.deleteOne({ email });
+      return res.status(400).json({ success: false, message: 'OTP has expired' });
+    }
+
+    // Verify OTP
+    if (otpRecord.otp !== otpCode) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+
+    // OTP is valid - delete it
+    await EmailOtp.deleteOne({ email });
+
+    // Find or create user
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        email,
+        name: email.split('@')[0],
+        role: 'student',
+        isActive: true
+      });
+      await user.save();
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '7d' });
+
+    res.json({
+      success: true,
+      message: 'OTP verified successfully',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      },
+      redirectTo: '/user-details'
+    });
+  } catch (error) {
+    console.error('Error verifying email OTP:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ Admin Routes ============
 
 // Admin Login
