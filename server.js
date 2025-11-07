@@ -695,6 +695,61 @@ app.delete('/api/questions/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ============ Chapter Management Routes ============
+
+// Get chapters for a subject
+app.get('/api/chapters/:subjectId', adminAuth, async (req, res) => {
+  try {
+    const { subjectId } = req.params;
+    const chapters = await Chapter.find({ subjectId });
+    res.json({ success: true, chapters });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new chapter
+app.post('/api/chapters', adminAuth, async (req, res) => {
+  try {
+    const { subjectId, courseId, name, description } = req.body;
+    const chapter = new Chapter({
+      subjectId,
+      courseId,
+      name,
+      description
+    });
+    await chapter.save();
+    res.json({ success: true, chapter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update chapter
+app.put('/api/chapters/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const chapter = await Chapter.findByIdAndUpdate(
+      req.params.id,
+      { name, description, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, chapter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete chapter
+app.delete('/api/chapters/:id', adminAuth, async (req, res) => {
+  try {
+    await Chapter.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Chapter deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ Mock Tests Routes ============
 
 app.get('/api/admin/mock-tests', adminAuth, async (req, res) => {
