@@ -184,6 +184,7 @@ const AppContent = () => {
       <Routes>
         {/* Public and user routes */}
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login setUser={setUser} onClose={() => {}} />} />
         <Route path="/Login" element={<Login setUser={setUser} onClose={() => {}} />} />
 
         {/* Admin routes */}
