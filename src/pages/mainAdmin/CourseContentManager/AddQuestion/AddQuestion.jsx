@@ -104,45 +104,19 @@ const AddQuestion = () => {
     if (!course) return;
     axios.get(`/api/subjects/${course}`, {
       headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setSubjects(res.data.subjects || []));
-  }, [course]);
+    }).then(res => setSubjects(res.data.subjects || [])).catch(err => console.error("Fetch subjects error:", err));
+  }, [course, token]);
 
-  // Fetch chapters
+  // Fetch questions for selected subject
   useEffect(() => {
     if (!subject) return;
-    axios.get(`/api/chapters/${subject}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setChapters(res.data.chapters || []));
-  }, [subject]);
-
-  // Fetch topics
-  useEffect(() => {
-    if (!chapter) return;
-    axios.get(`/api/topics/${chapter}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setTopics(res.data.topics || []));
-  }, [chapter]);
-
-  // Fetch tests
-  useEffect(() => {
-    if (!topic) return;
-    axios.get(`/api/tests/${topic}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then(res => setTests(res.data.tests || []));
-  }, [topic]);
-
-  // Fetch questions for selected test
-  useEffect(() => {
-    if (!test) return;
-    const token = localStorage.getItem("adminToken");
-
     axios
-      .get(`/api/questions?testId=${test}`, {
+      .get(`/api/questions/${subject}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setQuestions(res.data.questions || []))
       .catch((err) => console.error("❌ Fetch question error:", err));
-  }, [test]);
+  }, [subject, token]);
 
   const handleOptionChange = (optionKey, value) => {
     console.log(`📝 Option ${optionKey} changed:`, value);
@@ -159,17 +133,24 @@ const AddQuestion = () => {
 
   const validateForm = () => {
     console.log("🔍 Validating form...");
-    console.log("Test:", test);
+    console.log("Course:", course);
+    console.log("Subject:", subject);
     console.log("Question Text (raw):", questionText);
     console.log("Question Text (type):", typeof questionText);
     console.log("Question Text (length):", questionText?.length);
     console.log("Options (raw):", options);
     console.log("Correct Option:", correctOption);
 
-    // Check test selection
-    if (!test) {
-      console.log("❌ Test not selected");
-      toast.error("Please select a test");
+    // Check course and subject selection
+    if (!course) {
+      console.log("❌ Course not selected");
+      toast.error("Please select a course");
+      return false;
+    }
+
+    if (!subject) {
+      console.log("❌ Subject not selected");
+      toast.error("Please select a subject");
       return false;
     }
 
@@ -247,11 +228,6 @@ const AddQuestion = () => {
   };
 
   const resetForm = () => {
-    setCourse("");
-    setSubject("");
-    setChapter("");
-    setTopic("");
-    setTest("");
     setQuestionText("");
     setOptions({ A: "", B: "", C: "", D: "" });
     setCorrectOption("");
@@ -281,22 +257,16 @@ const AddQuestion = () => {
     console.log("✅ Validation passed, submitting...");
     setIsSubmitting(true);
 
-    // Prepare exact POST body as specified
+    // Prepare question data
     const questionData = {
-      testId: test,
-      questionText: questionText, // Keep HTML for rich content
-      options: {
-        A: options.A, // Keep HTML for rich content
-        B: options.B,
-        C: options.C,
-        D: options.D
-      },
-      correctOption,
-      explanation: explanation, // Keep HTML for rich content
-      difficulty,
-      marks: Number(marks),
-      negativeMarks: Number(negativeMarks),
-      isActive
+      subjectId: subject,
+      courseId: course,
+      question: questionText,
+      questionType: 'mcq',
+      options: [options.A, options.B, options.C, options.D],
+      correctAnswer: correctOption,
+      explanation: explanation,
+      difficulty: difficulty
     };
 
     console.log("📝 Question data to send:", questionData);
@@ -305,7 +275,7 @@ const AddQuestion = () => {
       const token = localStorage.getItem("adminToken");
       console.log("🔑 Token exists:", !!token);
 
-      // Make exactly one POST request
+      // Make POST request
       console.log("📡 Making POST request to /api/questions");
       const response = await axios.post(`/api/questions`, questionData, {
         headers: { Authorization: `Bearer ${token}` },
@@ -313,13 +283,13 @@ const AddQuestion = () => {
 
       console.log("✅ Response received:", response.status, response.data);
 
-      // Success (201 or ok:true) → green toast "Saved"
-      if (response.status === 201 || response.data?.success === true) {
+      // Success
+      if (response.status === 200 || response.data?.success === true) {
         console.log("🎉 Success! Showing toast and refetching...");
-        toast.success("Saved");
+        toast.success("Question added successfully!");
 
-        // Then one refetch: GET /api/questions?testId=<TEST_ID>
-        const refetchRes = await axios.get(`/api/questions?testId=${test}`, {
+        // Refetch questions for the subject
+        const refetchRes = await axios.get(`/api/questions/${subject}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setQuestions(refetchRes.data.questions || []);
@@ -365,14 +335,19 @@ const AddQuestion = () => {
 
   const handleEdit = (q) => {
     setEditingQuestionId(q._id);
-    setQuestionText(q.questionText);
-    setOptions(q.options || { A: "", B: "", C: "", D: "" });
-    setCorrectOption(q.correctOption);
+    setQuestionText(q.question);
+    // Convert array to object format for editing
+    const optionsObj = {
+      A: q.options?.[0] || "",
+      B: q.options?.[1] || "",
+      C: q.options?.[2] || "",
+      D: q.options?.[3] || ""
+    };
+    setOptions(optionsObj);
+    setCorrectOption(q.correctAnswer);
     setExplanation(q.explanation || "");
     setDifficulty(q.difficulty || "Medium");
-    setMarks(q.marks || 2);
-    setNegativeMarks(q.negativeMarks || 0.66);
-    setIsActive(q.isActive !== undefined ? q.isActive : true);
+    setIsActive(true);
   };
 
   return (
@@ -402,42 +377,6 @@ const AddQuestion = () => {
       )}
 
       {subject && (
-        <div className="form-group">
-          <label>Chapter</label>
-          <select value={chapter} onChange={(e) => setChapter(e.target.value)}>
-            <option value="">-- Select Chapter --</option>
-            {chapters.map((ch) => (
-              <option key={ch._id} value={ch._id}>{ch.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {chapter && (
-        <div className="form-group">
-          <label>Topic</label>
-          <select value={topic} onChange={(e) => setTopic(e.target.value)}>
-            <option value="">-- Select Topic --</option>
-            {topics.map((t) => (
-              <option key={t._id} value={t._id}>{t.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {topic && (
-        <div className="form-group">
-          <label>Test</label>
-          <select value={test} onChange={(e) => setTest(e.target.value)}>
-            <option value="">-- Select Test --</option>
-            {tests.map((t) => (
-              <option key={t._id} value={t._id}>{t.title}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {test && (
         <>
           <div className="form-group">
             <label>Question Text</label>
