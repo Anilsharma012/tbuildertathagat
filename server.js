@@ -865,6 +865,7 @@ app.post('/api/tests', adminAuth, async (req, res) => {
     await test.save();
     res.json({ success: true, test });
   } catch (error) {
+    console.error('Error creating test:', error.message, error.stack);
     res.status(500).json({ success: false, message: error.message });
   }
 });
