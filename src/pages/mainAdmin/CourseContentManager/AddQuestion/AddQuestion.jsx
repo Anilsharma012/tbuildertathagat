@@ -346,7 +346,7 @@ const AddQuestion = () => {
     setOptions(optionsObj);
     setCorrectOption(q.correctAnswer);
     setExplanation(q.explanation || "");
-    setDifficulty(q.difficulty || "Medium");
+    setDifficulty(q.difficulty || "medium");
     setIsActive(true);
   };
 
