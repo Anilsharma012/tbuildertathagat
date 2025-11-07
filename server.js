@@ -179,6 +179,7 @@ const Subject = mongoose.model('Subject', subjectSchema);
 const Question = mongoose.model('Question', questionSchema);
 const Chapter = mongoose.model('Chapter', chapterSchema);
 const Topic = mongoose.model('Topic', topicSchema);
+const Test = mongoose.model('Test', testSchema);
 
 // ============ Middleware ============
 
