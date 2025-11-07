@@ -834,6 +834,66 @@ app.delete('/api/topics/:id', adminAuth, async (req, res) => {
   }
 });
 
+// ============ Test Management Routes ============
+
+// Get tests for a topic
+app.get('/api/tests/:topicId', adminAuth, async (req, res) => {
+  try {
+    const { topicId } = req.params;
+    const tests = await Test.find({ topic: topicId });
+    res.json({ success: true, tests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new test
+app.post('/api/tests', adminAuth, async (req, res) => {
+  try {
+    const { course, subject, chapter, topic, title, description, instructions, duration, totalMarks } = req.body;
+    const test = new Test({
+      course,
+      subject,
+      chapter,
+      topic,
+      title,
+      description,
+      instructions,
+      duration,
+      totalMarks
+    });
+    await test.save();
+    res.json({ success: true, test });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update test
+app.put('/api/tests/:id', adminAuth, async (req, res) => {
+  try {
+    const { course, subject, chapter, topic, title, description, instructions, duration, totalMarks } = req.body;
+    const test = await Test.findByIdAndUpdate(
+      req.params.id,
+      { course, subject, chapter, topic, title, description, instructions, duration, totalMarks, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, test });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete test
+app.delete('/api/tests/:id', adminAuth, async (req, res) => {
+  try {
+    await Test.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Test deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // ============ Mock Tests Routes ============
 
 app.get('/api/admin/mock-tests', adminAuth, async (req, res) => {
