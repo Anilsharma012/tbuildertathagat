@@ -22,7 +22,7 @@ const AddQuestion = () => {
   const [options, setOptions] = useState({ A: "", B: "", C: "", D: "" });
   const [correctOption, setCorrectOption] = useState("");
   const [explanation, setExplanation] = useState("");
-  const [difficulty, setDifficulty] = useState("Medium");
+  const [difficulty, setDifficulty] = useState("medium");
   const [marks, setMarks] = useState(2);
   const [negativeMarks, setNegativeMarks] = useState(0.66);
   const [isActive, setIsActive] = useState(true);
