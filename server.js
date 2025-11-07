@@ -132,6 +132,40 @@ const questionSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+const chapterSchema = new mongoose.Schema({
+  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  name: { type: String, required: true },
+  description: String,
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const topicSchema = new mongoose.Schema({
+  chapterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter', required: true },
+  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  name: { type: String, required: true },
+  description: String,
+  isFullTestSection: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const testSchema = new mongoose.Schema({
+  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  chapter: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter', required: true },
+  topic: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true },
+  title: { type: String, required: true },
+  description: String,
+  instructions: String,
+  duration: { type: Number, required: true },
+  totalMarks: { type: Number, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Create models
 const User = mongoose.model('User', userSchema);
 const Course = mongoose.model('Course', courseSchema);
@@ -143,6 +177,9 @@ const StudyMaterial = mongoose.model('StudyMaterial', studyMaterialSchema);
 const Discussion = mongoose.model('Discussion', discussionSchema);
 const Subject = mongoose.model('Subject', subjectSchema);
 const Question = mongoose.model('Question', questionSchema);
+const Chapter = mongoose.model('Chapter', chapterSchema);
+const Topic = mongoose.model('Topic', topicSchema);
+const Test = mongoose.model('Test', testSchema);
 
 // ============ Middleware ============
 
@@ -680,6 +717,179 @@ app.delete('/api/questions/:id', adminAuth, async (req, res) => {
   try {
     await Question.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Question deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============ Chapter Management Routes ============
+
+// Get chapters for a subject
+app.get('/api/chapters/:subjectId', adminAuth, async (req, res) => {
+  try {
+    const { subjectId } = req.params;
+    const chapters = await Chapter.find({ subjectId });
+    res.json({ success: true, chapters });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new chapter
+app.post('/api/chapters', adminAuth, async (req, res) => {
+  try {
+    const { subjectId, courseId, name, description } = req.body;
+    const chapter = new Chapter({
+      subjectId,
+      courseId,
+      name,
+      description
+    });
+    await chapter.save();
+    res.json({ success: true, chapter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update chapter
+app.put('/api/chapters/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const chapter = await Chapter.findByIdAndUpdate(
+      req.params.id,
+      { name, description, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, chapter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete chapter
+app.delete('/api/chapters/:id', adminAuth, async (req, res) => {
+  try {
+    await Chapter.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Chapter deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============ Topic Management Routes ============
+
+// Get topics for a chapter
+app.get('/api/topics/:chapterId', adminAuth, async (req, res) => {
+  try {
+    const { chapterId } = req.params;
+    const topics = await Topic.find({ chapterId });
+    res.json({ success: true, topics });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new topic
+app.post('/api/topics', adminAuth, async (req, res) => {
+  try {
+    const { chapter, subject, course, name, description, isFullTestSection } = req.body;
+    const topic = new Topic({
+      chapterId: chapter,
+      subjectId: subject,
+      courseId: course,
+      name,
+      description,
+      isFullTestSection
+    });
+    await topic.save();
+    res.json({ success: true, topic });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update topic
+app.put('/api/topics/:id', adminAuth, async (req, res) => {
+  try {
+    const { name, description, isFullTestSection } = req.body;
+    const topic = await Topic.findByIdAndUpdate(
+      req.params.id,
+      { name, description, isFullTestSection, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, topic });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete topic
+app.delete('/api/topics/:id', adminAuth, async (req, res) => {
+  try {
+    await Topic.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Topic deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ============ Test Management Routes ============
+
+// Get tests for a topic
+app.get('/api/tests/:topicId', adminAuth, async (req, res) => {
+  try {
+    const { topicId } = req.params;
+    const tests = await Test.find({ topic: topicId });
+    res.json({ success: true, tests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Create a new test
+app.post('/api/tests', adminAuth, async (req, res) => {
+  try {
+    const { course, subject, chapter, topic, title, description, instructions, duration, totalMarks } = req.body;
+    const test = new Test({
+      course,
+      subject,
+      chapter,
+      topic,
+      title,
+      description,
+      instructions,
+      duration,
+      totalMarks
+    });
+    await test.save();
+    res.json({ success: true, test });
+  } catch (error) {
+    console.error('Error creating test:', error.message, error.stack);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update test
+app.put('/api/tests/:id', adminAuth, async (req, res) => {
+  try {
+    const { course, subject, chapter, topic, title, description, instructions, duration, totalMarks } = req.body;
+    const test = await Test.findByIdAndUpdate(
+      req.params.id,
+      { course, subject, chapter, topic, title, description, instructions, duration, totalMarks, updatedAt: Date.now() },
+      { new: true }
+    );
+    res.json({ success: true, test });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Delete test
+app.delete('/api/tests/:id', adminAuth, async (req, res) => {
+  try {
+    await Test.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Test deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

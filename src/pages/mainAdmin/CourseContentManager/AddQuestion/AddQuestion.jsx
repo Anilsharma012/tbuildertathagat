@@ -22,7 +22,7 @@ const AddQuestion = () => {
   const [options, setOptions] = useState({ A: "", B: "", C: "", D: "" });
   const [correctOption, setCorrectOption] = useState("");
   const [explanation, setExplanation] = useState("");
-  const [difficulty, setDifficulty] = useState("Medium");
+  const [difficulty, setDifficulty] = useState("medium");
   const [marks, setMarks] = useState(2);
   const [negativeMarks, setNegativeMarks] = useState(0.66);
   const [isActive, setIsActive] = useState(true);
@@ -232,7 +232,7 @@ const AddQuestion = () => {
     setOptions({ A: "", B: "", C: "", D: "" });
     setCorrectOption("");
     setExplanation("");
-    setDifficulty("Medium");
+    setDifficulty("medium");
     setMarks(2);
     setNegativeMarks(0.66);
     setIsActive(true);
@@ -266,7 +266,7 @@ const AddQuestion = () => {
       options: [options.A, options.B, options.C, options.D],
       correctAnswer: correctOption,
       explanation: explanation,
-      difficulty: difficulty
+      difficulty: difficulty.toLowerCase()
     };
 
     console.log("📝 Question data to send:", questionData);
@@ -346,7 +346,7 @@ const AddQuestion = () => {
     setOptions(optionsObj);
     setCorrectOption(q.correctAnswer);
     setExplanation(q.explanation || "");
-    setDifficulty(q.difficulty || "Medium");
+    setDifficulty(q.difficulty || "medium");
     setIsActive(true);
   };
 
@@ -435,9 +435,9 @@ const AddQuestion = () => {
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
             >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
             </select>
           </div>
 
