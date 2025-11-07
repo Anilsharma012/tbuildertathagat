@@ -111,6 +111,27 @@ const discussionSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+const subjectSchema = new mongoose.Schema({
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  name: { type: String, required: true },
+  description: String,
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const questionSchema = new mongoose.Schema({
+  subjectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  question: { type: String, required: true },
+  questionType: { type: String, enum: ['mcq', 'short-answer', 'long-answer'], default: 'mcq' },
+  options: [String],
+  correctAnswer: String,
+  explanation: String,
+  difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Create models
 const User = mongoose.model('User', userSchema);
 const Course = mongoose.model('Course', courseSchema);
@@ -120,6 +141,8 @@ const Payment = mongoose.model('Payment', paymentSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
 const StudyMaterial = mongoose.model('StudyMaterial', studyMaterialSchema);
 const Discussion = mongoose.model('Discussion', discussionSchema);
+const Subject = mongoose.model('Subject', subjectSchema);
+const Question = mongoose.model('Question', questionSchema);
 
 // ============ Middleware ============
 
