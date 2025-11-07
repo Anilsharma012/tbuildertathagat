@@ -335,14 +335,19 @@ const AddQuestion = () => {
 
   const handleEdit = (q) => {
     setEditingQuestionId(q._id);
-    setQuestionText(q.questionText);
-    setOptions(q.options || { A: "", B: "", C: "", D: "" });
-    setCorrectOption(q.correctOption);
+    setQuestionText(q.question);
+    // Convert array to object format for editing
+    const optionsObj = {
+      A: q.options?.[0] || "",
+      B: q.options?.[1] || "",
+      C: q.options?.[2] || "",
+      D: q.options?.[3] || ""
+    };
+    setOptions(optionsObj);
+    setCorrectOption(q.correctAnswer);
     setExplanation(q.explanation || "");
     setDifficulty(q.difficulty || "Medium");
-    setMarks(q.marks || 2);
-    setNegativeMarks(q.negativeMarks || 0.66);
-    setIsActive(q.isActive !== undefined ? q.isActive : true);
+    setIsActive(true);
   };
 
   return (
