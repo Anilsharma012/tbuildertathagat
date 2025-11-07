@@ -152,6 +152,20 @@ const topicSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+const testSchema = new mongoose.Schema({
+  course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+  subject: { type: mongoose.Schema.Types.ObjectId, ref: 'Subject', required: true },
+  chapter: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter', required: true },
+  topic: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true },
+  title: { type: String, required: true },
+  description: String,
+  instructions: String,
+  duration: { type: Number, required: true },
+  totalMarks: { type: Number, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Create models
 const User = mongoose.model('User', userSchema);
 const Course = mongoose.model('Course', courseSchema);
