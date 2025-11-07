@@ -232,7 +232,7 @@ const AddQuestion = () => {
     setOptions({ A: "", B: "", C: "", D: "" });
     setCorrectOption("");
     setExplanation("");
-    setDifficulty("Medium");
+    setDifficulty("medium");
     setMarks(2);
     setNegativeMarks(0.66);
     setIsActive(true);
