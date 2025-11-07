@@ -6,7 +6,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import ChapterTab from "./ChapterTab/ChapterTab";
 import TopicTab from "./TopicTab/TopicTab";
 import AddTest from "./AddTest/AddTest";
-import AddQuestion from "./AddQuestion/AddQuestion"
+import AddQuestion from "./AddQuestion/AddQuestion";
 
 
 const CourseContentManager = () => {
