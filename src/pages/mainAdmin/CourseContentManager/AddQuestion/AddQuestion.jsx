@@ -133,17 +133,24 @@ const AddQuestion = () => {
 
   const validateForm = () => {
     console.log("🔍 Validating form...");
-    console.log("Test:", test);
+    console.log("Course:", course);
+    console.log("Subject:", subject);
     console.log("Question Text (raw):", questionText);
     console.log("Question Text (type):", typeof questionText);
     console.log("Question Text (length):", questionText?.length);
     console.log("Options (raw):", options);
     console.log("Correct Option:", correctOption);
 
-    // Check test selection
-    if (!test) {
-      console.log("❌ Test not selected");
-      toast.error("Please select a test");
+    // Check course and subject selection
+    if (!course) {
+      console.log("❌ Course not selected");
+      toast.error("Please select a course");
+      return false;
+    }
+
+    if (!subject) {
+      console.log("❌ Subject not selected");
+      toast.error("Please select a subject");
       return false;
     }
 
