@@ -372,42 +372,6 @@ const AddQuestion = () => {
       )}
 
       {subject && (
-        <div className="form-group">
-          <label>Chapter</label>
-          <select value={chapter} onChange={(e) => setChapter(e.target.value)}>
-            <option value="">-- Select Chapter --</option>
-            {chapters.map((ch) => (
-              <option key={ch._id} value={ch._id}>{ch.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {chapter && (
-        <div className="form-group">
-          <label>Topic</label>
-          <select value={topic} onChange={(e) => setTopic(e.target.value)}>
-            <option value="">-- Select Topic --</option>
-            {topics.map((t) => (
-              <option key={t._id} value={t._id}>{t.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {topic && (
-        <div className="form-group">
-          <label>Test</label>
-          <select value={test} onChange={(e) => setTest(e.target.value)}>
-            <option value="">-- Select Test --</option>
-            {tests.map((t) => (
-              <option key={t._id} value={t._id}>{t.title}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {test && (
         <>
           <div className="form-group">
             <label>Question Text</label>
